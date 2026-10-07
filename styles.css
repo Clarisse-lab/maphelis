@@ -146,3 +146,162 @@
 @media (prefers-reduced-motion:reduce){
   .mini,.mini::after{animation:none !important}
 }
+
+
+/* UX v2 do formulário */
+.form-card{position:relative;padding:0 40px 34px;overflow:hidden}
+.form-progress-meta{
+  position:sticky;
+  top:76px;
+  z-index:8;
+  margin:0 -40px 30px;
+  padding:18px 40px 16px;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+}
+.form-progress-meta span{
+  font-size:12px;
+  font-weight:700;
+  color:var(--teal);
+  text-transform:uppercase;
+  letter-spacing:.14em;
+}
+.form-progress-meta strong{
+  font-size:15px;
+  color:var(--ink);
+}
+.step h2{font-size:28px;margin:0 0 28px}
+.question-block{
+  padding:0 0 28px;
+  margin:0 0 28px;
+  border-bottom:1px solid #e8efee;
+}
+.question-block:last-child{border-bottom:0;margin-bottom:0}
+.question-block>label{
+  font-size:18px;
+  line-height:1.35;
+  margin-bottom:14px;
+  letter-spacing:-.01em;
+}
+.question-block.field-error{
+  background:#fff7f5;
+  border:1px solid #efc2b9;
+  border-radius:16px;
+  padding:18px;
+}
+.form-card .options{gap:10px}
+.form-card .choice{
+  min-height:58px;
+  padding:14px 16px;
+  border-radius:14px;
+  background:#fbfdfc;
+}
+.form-card .choice:hover{
+  background:#f4faf9;
+}
+.form-card .choice::after{
+  content:"";
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  margin-left:auto;
+  border:1px solid transparent;
+  flex:0 0 22px;
+}
+.form-card .choice.selected{
+  background:#edf7f6;
+  border-color:var(--teal);
+}
+.form-card .choice.selected::after{
+  content:"✓";
+  display:grid;
+  place-items:center;
+  color:#fff;
+  background:var(--teal);
+  border-color:var(--teal);
+  font-size:13px;
+  font-weight:800;
+}
+.form-card .choice input[type="radio"],
+.form-card .choice input[type="checkbox"]{
+  width:22px !important;
+  height:22px !important;
+  min-width:22px;
+  flex-basis:22px;
+}
+.form-card .choice input[type="radio"]::before{width:10px;height:10px}
+.choice-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px !important;
+}
+.choice-grid .choice{
+  min-height:54px;
+  font-size:14px;
+  font-weight:600;
+}
+.selection-counter{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:#eef6f5;
+  color:var(--teal);
+  border-radius:999px;
+  padding:7px 11px;
+  font-size:12px;
+  font-weight:700;
+  margin:-4px 0 12px;
+}
+.choice-disabled{
+  opacity:.42;
+  pointer-events:none;
+}
+.field input:not([type="radio"]):not([type="checkbox"]),
+.field select,
+.field textarea{
+  min-height:50px;
+  border:1px solid #cddcda;
+  background:#fcfefd;
+  transition:border-color .2s ease,box-shadow .2s ease,background .2s ease;
+}
+.field input:not([type="radio"]):not([type="checkbox"]):focus,
+.field select:focus,
+.field textarea:focus{
+  outline:none;
+  border-color:var(--teal);
+  box-shadow:0 0 0 4px rgba(20,111,138,.09);
+  background:#fff;
+}
+.form-actions{
+  position:sticky;
+  bottom:0;
+  z-index:7;
+  margin:28px -40px -34px;
+  padding:18px 40px;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);
+}
+.form-actions .btn{min-width:150px}
+@media(max-width:720px){
+  .form-card{padding:0 18px 24px}
+  .form-progress-meta{
+    top:68px;
+    margin:0 -18px 24px;
+    padding:14px 18px;
+    align-items:flex-start;
+    flex-direction:column;
+    gap:3px;
+  }
+  .choice-grid{grid-template-columns:1fr}
+  .form-actions{
+    margin:24px -18px -24px;
+    padding:14px 18px;
+  }
+  .question-block>label{font-size:16px}
+  .form-card .choice{align-items:flex-start}
+}
