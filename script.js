@@ -1,0 +1,5 @@
+const steps=[...document.querySelectorAll('.step')];const next=document.getElementById('nextBtn');const prev=document.getElementById('prevBtn');const submit=document.getElementById('submitBtn');const bar=document.getElementById('progressBar');let i=0;
+function show(){steps.forEach((s,n)=>s.classList.toggle('active',n===i));prev.style.visibility=i===0?'hidden':'visible';next.style.display=i===steps.length-1?'none':'inline-flex';submit.style.display=i===steps.length-1?'inline-flex':'none';bar.style.width=((i+1)/steps.length*100)+'%';window.scrollTo({top:0,behavior:'smooth'})}
+function validStep(){const fields=[...steps[i].querySelectorAll('input,select,textarea')];for(const f of fields){if(!f.checkValidity()){f.reportValidity();return false}}return true}
+next?.addEventListener('click',()=>{if(validStep()&&i<steps.length-1){i++;show()}});prev?.addEventListener('click',()=>{if(i>0){i--;show()}});
+document.querySelectorAll('#gargalos input[type=checkbox]').forEach(cb=>cb.addEventListener('change',()=>{const checked=[...document.querySelectorAll('#gargalos input:checked')];if(checked.length>3){cb.checked=false;alert('Selecione no máximo 3 opções.')}}));show();
