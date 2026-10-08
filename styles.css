@@ -247,3 +247,109 @@ button,input,select,textarea{font:inherit}
   .steps-mini{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}.mini,.mini:after{animation:none!important}}
+
+
+/* Ajustes landing principal — tipografia maior e visuais mais limpos */
+.landing-clean .navlinks{font-size:13px}
+.landing-clean .btn{font-size:13px;padding:14px 22px}
+.landing-clean .btn-small{font-size:12px;padding:12px 18px}
+.landing-clean .text-link{font-size:12px}
+.landing-clean .eyebrow{font-size:11px}
+.landing-clean .lp-hero p{font-size:17px;line-height:1.58;max-width:590px}
+.landing-clean .service-item strong{font-size:14px}
+.landing-clean .service-item small{font-size:12px}
+.landing-clean .lp-acting p{font-size:16px;line-height:1.6}
+.landing-clean .lp-acting-copy li{font-size:15px;line-height:1.55;margin:7px 0}
+.landing-clean .authority-copy p{font-size:16px;line-height:1.6;max-width:650px;margin-bottom:16px}
+.landing-clean .authority-stats small{font-size:12px}
+.landing-clean .lp-next p{font-size:16px;line-height:1.55;max-width:760px}
+.landing-clean .footer small{font-size:12px}
+
+/* Hero: remove a arquitetura pesada e usa linguagem gráfica da IDV */
+.landing-clean .lp-hero-art{
+  min-height:455px;
+  background:
+    radial-gradient(circle at 72% 32%,rgba(242,224,173,.55),transparent 18%),
+    linear-gradient(145deg,#E5F0F1 0%,#F7F9F6 72%);
+}
+.landing-clean .lp-hero-art:before{
+  content:"";
+  position:absolute;
+  width:430px;
+  height:430px;
+  border-radius:50%;
+  border:1px solid rgba(20,111,138,.22);
+  left:8%;
+  top:8%;
+  box-shadow:
+    0 0 0 70px rgba(20,111,138,.035),
+    0 0 0 140px rgba(20,111,138,.025);
+}
+.landing-clean .lp-hero-art:after{
+  content:"";
+  position:absolute;
+  inset:14% 12%;
+  background:
+    linear-gradient(90deg,transparent 49.85%,rgba(20,111,138,.2) 50%,transparent 50.15%),
+    linear-gradient(transparent 49.85%,rgba(20,111,138,.2) 50%,transparent 50.15%);
+}
+.landing-clean .arc-a{width:320px;height:320px;left:20%;bottom:-160px;border-color:rgba(178,131,57,.5)}
+.landing-clean .arc-b{width:500px;height:500px;left:6%;bottom:-280px;border-color:rgba(20,111,138,.16)}
+.landing-clean .building{display:none}
+
+/* Segunda dobra: painel azul claro abstrato, sem “foto fake” */
+.landing-clean .lp-architecture{
+  min-height:390px;
+  background:
+    radial-gradient(circle at 72% 30%,rgba(242,224,173,.6),transparent 17%),
+    linear-gradient(145deg,#DDECEF,#F7F9F6);
+}
+.landing-clean .lp-architecture:before{
+  content:"";
+  position:absolute;
+  width:72%;
+  height:72%;
+  border:1px solid rgba(20,111,138,.22);
+  border-radius:50%;
+  left:12%;
+  top:10%;
+}
+.landing-clean .lp-architecture:after{
+  content:"DIAGNÓSTICO  ·  DIREÇÃO  ·  EXECUÇÃO";
+  position:absolute;
+  left:10%;
+  right:10%;
+  bottom:12%;
+  padding-top:18px;
+  border-top:1px solid rgba(20,111,138,.22);
+  font-size:12px;
+  letter-spacing:.18em;
+  font-weight:700;
+  color:var(--petrol);
+}
+.landing-clean .shadow-plane{display:none}
+
+@media(max-width:620px){
+  .landing-clean .lp-hero-copy{padding:42px 0 30px}
+  .landing-clean .lp-hero h1{font-size:35px;line-height:1.05}
+  .landing-clean .lp-hero p{font-size:17px}
+  .landing-clean .eyebrow{font-size:10px}
+  .landing-clean .btn{font-size:12px}
+  .landing-clean .text-link{font-size:12px}
+  .landing-clean .lp-hero-art{min-height:250px}
+  .landing-clean .lp-hero-art:before{width:270px;height:270px;left:18%;top:2%}
+  .landing-clean .arc-a{width:220px;height:220px;left:23%;bottom:-125px}
+  .landing-clean .arc-b{width:340px;height:340px;left:5%;bottom:-210px}
+  .landing-clean .service-item{padding:20px 0}
+  .landing-clean .service-item strong{font-size:16px}
+  .landing-clean .service-item small{font-size:14px}
+  .landing-clean .lp-acting h2{font-size:34px}
+  .landing-clean .lp-acting p{font-size:17px}
+  .landing-clean .lp-acting-copy li{font-size:16px}
+  .landing-clean .lp-architecture{min-height:250px}
+  .landing-clean .lp-architecture:after{font-size:10px;letter-spacing:.12em}
+  .landing-clean .authority-copy p{font-size:17px}
+  .landing-clean .authority-stats strong{font-size:25px}
+  .landing-clean .authority-stats small{font-size:12px}
+  .landing-clean .lp-next p{font-size:16px}
+}
