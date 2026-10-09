@@ -1,123 +1,461 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>MAPHEL | Consultoria Estratégica</title>
-  <meta name="description" content="Consultoria estratégica, remota e 100% individualizada com Tatiane Resende para elevar o padrão de gestão da sua empresa.">
-  <link rel="stylesheet" href="/styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MAPHEL — Preview Opção 2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+:root{
+  --blue:#146F8A;
+  --blue2:#0F6077;
+  --dark:#0B4050;
+  --ink:#0B303A;
+  --cream:#F7F9F6;
+  --white:#FFFFFF;
+  --gold:#F2E0AD;
+  --gold-dark:#B68739;
+  --line:#DCE7E6;
+  --muted:#64777C;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink)}
+a{text-decoration:none;color:inherit}
+.wrap{width:min(1180px,calc(100% - 40px));margin:auto}
+.top{
+  position:sticky;top:0;z-index:30;
+  background:rgba(247,249,246,.97);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line)
+}
+.nav{height:80px;display:flex;align-items:center;justify-content:space-between;gap:28px}
+.brand{font-size:32px;font-weight:700;letter-spacing:-1.5px}
+.nav nav{display:flex;gap:36px;font-size:15px;font-weight:500;color:#587079}
+.nav nav a{transition:.2s}
+.nav nav a:hover{color:var(--blue)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:16px 25px;border-radius:999px;
+  background:var(--blue);color:#fff;
+  font-size:14px;font-weight:700;
+  box-shadow:0 10px 24px rgba(20,111,138,.14);
+  transition:.2s
+}
+.btn:hover{transform:translateY(-2px);background:var(--blue2);box-shadow:0 14px 28px rgba(20,111,138,.2)}
+.btn.small{padding:13px 21px;font-size:13px}
+.link{font-size:13px;font-weight:700}
+.kicker{font-size:10px;letter-spacing:.22em;font-weight:700;color:var(--gold-dark)}
+
+/* HERO */
+.hero{background:linear-gradient(180deg,#FAFBF8,#F0F6F5)}
+.hero-centered{min-height:535px;display:flex;align-items:center;justify-content:center;text-align:center}
+.hero-copy-center{max-width:1050px;margin:auto;padding:74px 0 68px}
+.hero-copy-center h1{
+  font-size:clamp(48px,5vw,72px);line-height:1.01;
+  letter-spacing:-.052em;margin:16px auto 25px;max-width:1080px
+}
+.hero-copy-center p{
+  font-size:22px;line-height:1.55;color:var(--muted);
+  max-width:860px;margin:0 auto 34px
+}
+.actions{display:flex;gap:24px;align-items:center;justify-content:center;flex-wrap:wrap}
+
+/* BENEFITS STRIP */
+.quick{
+  background:linear-gradient(180deg,#FFFFFF 0%,#F7FAF9 100%);
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+}
+.quick-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  min-height:118px;
+}
+.quick-grid>div{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:30px 26px;
+  border-right:1px solid var(--line);
+}
+.quick-grid>div:last-child{border-right:0}
+.quick-grid>div:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:18px;
+  width:34px;
+  height:2px;
+  transform:translateX(-50%);
+  border-radius:999px;
+  background:linear-gradient(90deg,transparent,var(--blue),transparent);
+  opacity:.55;
+}
+.quick strong{
+  max-width:230px;
+  font-size:17px;
+  line-height:1.35;
+  font-weight:600;
+}
+
+/* SEGUNDA DOBRA */
+.section{
+  position:relative;
+  padding:98px 0 112px;
+  background:
+    radial-gradient(circle at 88% 12%,rgba(20,111,138,.10),transparent 23%),
+    radial-gradient(circle at 8% 88%,rgba(242,224,173,.18),transparent 18%),
+    linear-gradient(180deg,#F7F9F6 0%,#F2F7F6 100%);
+  overflow:hidden;
+}
+.section:before{
+  content:"";
+  position:absolute;
+  width:560px;
+  height:560px;
+  border:1px solid rgba(20,111,138,.10);
+  border-radius:50%;
+  right:-280px;
+  top:170px;
+}
+.section:after{
+  content:"";
+  position:absolute;
+  left:-120px;
+  bottom:-180px;
+  width:420px;
+  height:420px;
+  border-radius:50%;
+  border:1px solid rgba(182,135,57,.10);
+  box-shadow:0 0 0 72px rgba(20,111,138,.018);
+}
+.heading{
+  position:relative;z-index:2;
+  display:grid;grid-template-columns:1fr 390px;gap:70px;
+  align-items:center;margin-bottom:48px
+}
+.heading h2{
+  font-size:clamp(42px,3.8vw,56px);line-height:1.04;
+  letter-spacing:-.046em;margin:11px 0 0;max-width:790px
+}
+.focus-text{
+  font-size:21px;line-height:1.48;font-weight:600;
+  color:var(--ink);margin:0;
+  border-left:3px solid var(--blue);
+  padding:16px 0 16px 22px
+}
+.need-cards{
+  position:relative;z-index:2;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:20px
+}
+.need-cards article{
+  min-height:185px;
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(7px);
+  border:1px solid rgba(20,111,138,.15);
+  border-radius:22px;
+  padding:27px;
+  box-shadow:0 18px 42px rgba(11,64,80,.055);
+  position:relative;
+  overflow:hidden;
+  transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease,background .28s ease;
+}
+.need-cards article:before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:3px;
+  background:linear-gradient(90deg,var(--blue),rgba(20,111,138,0));
+  opacity:.42;
+}
+.need-cards article:after{
+  content:"";
+  position:absolute;
+  width:145px;
+  height:145px;
+  border:1px solid rgba(20,111,138,.08);
+  border-radius:50%;
+  right:-68px;
+  bottom:-72px;
+  transition:transform .35s ease;
+}
+.need-cards article:nth-child(2),
+.need-cards article:nth-child(5){background:rgba(242,248,247,.9)}
+.need-cards article:hover{
+  transform:translateY(-6px);
+  border-color:rgba(20,111,138,.34);
+  background:#fff;
+  box-shadow:0 24px 54px rgba(11,64,80,.105);
+}
+.need-cards article:hover:after{transform:scale(1.12)}
+.need-cards span{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:34px;height:28px;padding:0 9px;
+  border-radius:999px;background:#FFF7E4;
+  color:#A8752E;font-size:11px;font-weight:700;margin-bottom:22px
+}
+.need-cards h3{font-size:23px;line-height:1.22;margin:0;max-width:335px}
+
+/* TATIANE — TRANSIÇÃO DIRETA DA DOBRA CLARA */
+.tatiane{
+  padding:88px 0 76px;
+  background:linear-gradient(115deg,#082F39,#0D5263);
+  color:#fff;
+  border-top:1px solid rgba(255,255,255,.04)
+}
+.tatiane-grid{display:grid;grid-template-columns:.72fr 1.28fr;gap:62px;align-items:center}
+.photo{
+  height:475px;border-radius:28px;overflow:hidden;
+  background:#12323B;border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 24px 55px rgba(0,0,0,.15)
+}
+.photo img{width:100%;height:100%;object-fit:cover;object-position:center 28%}
+.tatiane .kicker{color:var(--gold)}
+.tatiane h2{font-size:50px;letter-spacing:-.04em;margin:10px 0 16px}
+.tatiane p{font-size:17px;line-height:1.65;color:#D7E5E8;max-width:735px}
+.numbers{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid rgba(255,255,255,.16);margin-top:32px}
+.numbers>div{padding:24px 16px 0 0}
+.numbers>div+div{padding-left:16px;border-left:1px solid rgba(255,255,255,.14)}
+.numbers strong,.numbers small{display:block}
+.numbers strong{font-size:23px;color:#fff}
+.numbers small{font-size:11px;color:#BCD2D6;margin-top:7px;line-height:1.35}
+
+/* IMPORTANTE */
+.cta{
+  padding:66px 0 72px;
+  background:linear-gradient(180deg,#F7F9F6 0%,#F1F6F5 100%);
+}
+.cta-box{
+  position:relative;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:center;
+  gap:48px;
+  background:linear-gradient(135deg,#EEF6F5 0%,#E6F1F2 100%);
+  border:1px solid rgba(20,111,138,.18);
+  border-radius:26px;
+  padding:40px 42px;
+  box-shadow:0 18px 44px rgba(11,64,80,.07);
+}
+.cta-box:before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  width:6px;
+  height:100%;
+  background:var(--blue);
+}
+.cta-box:after{
+  content:"";
+  position:absolute;
+  width:250px;
+  height:250px;
+  border:1px solid rgba(20,111,138,.16);
+  border-radius:50%;
+  right:-125px;
+  top:-130px;
+}
+.cta-copy{position:relative;z-index:2}
+.cta h2{font-size:36px;line-height:1.1;margin:8px 0 12px}
+.cta p{font-size:16px;line-height:1.55;color:#51666B;max-width:790px;margin:7px 0}
+.cta .btn{
+  position:relative;z-index:2;
+  min-width:245px;min-height:58px;
+  font-size:15px;background:var(--dark);
+  box-shadow:0 12px 26px rgba(11,64,80,.18)
+}
+
+/* FOOTER */
+.foot{
+  background:#EAF2F2;
+  color:#536A70;
+  border-top:1px solid rgba(20,111,138,.16);
+  padding:52px 0 28px;
+}
+.footer-main{
+  display:grid;grid-template-columns:1.25fr 1fr .85fr;
+  gap:70px;padding-bottom:42px
+}
+.footer-brandline{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.footer-brandline strong{font-size:25px;letter-spacing:.16em;color:var(--ink)}
+.footer-brandline span{width:18px;height:1px;background:var(--blue)}
+.footer-brandline small{font-size:13px;color:#6C8186}
+.foot h4{
+  margin:0 0 17px;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--blue);
+}
+.foot p{margin:5px 0;font-size:14px;line-height:1.5}
+.footer-bottom{
+  display:flex;justify-content:space-between;gap:24px;
+  padding-top:24px;border-top:1px solid rgba(20,111,138,.16);
+  font-size:12px;letter-spacing:.04em;color:#73888D;
+}
+
+@media(max-width:900px){
+  .nav nav{display:none}
+  .heading{grid-template-columns:1fr;gap:24px}
+  .need-cards{grid-template-columns:1fr 1fr}
+  .tatiane-grid{grid-template-columns:1fr}
+  .photo{height:520px;max-width:520px}
+  .cta-box{grid-template-columns:1fr}
+  .footer-main{grid-template-columns:1fr 1fr}
+}
+@media(max-width:620px){
+  .wrap{width:min(100% - 28px,1180px)}
+  .nav{height:70px}
+  .brand{font-size:27px}
+  .nav .btn{font-size:11px;padding:11px 13px}
+  .hero-centered{min-height:auto}
+  .hero-copy-center{padding:48px 0 44px}
+  .hero-copy-center h1{font-size:39px;line-height:1.04}
+  .hero-copy-center p{font-size:18px}
+  .actions{flex-direction:column}
+  .quick-grid{grid-template-columns:1fr}
+  .quick-grid>div{padding:22px 0;border-right:0;border-bottom:1px solid var(--line)}
+  .quick strong{font-size:17px}
+  .section{padding:62px 0 70px}
+  .heading h2{font-size:37px}
+  .focus-text{font-size:18px}
+  .need-cards{grid-template-columns:1fr}
+  .need-cards article{min-height:145px}
+  .need-cards h3{font-size:21px}
+  .tatiane{padding:62px 0}
+  .photo{height:420px}
+  .tatiane h2{font-size:40px}
+  .tatiane p{font-size:16px}
+  .numbers{grid-template-columns:1fr 1fr}
+  .numbers>div:nth-child(3){border-left:0;padding-left:0}
+  .cta{padding:48px 0}
+  .cta-box{padding:28px 22px}
+  .cta h2{font-size:30px}
+  .cta .btn{width:100%;min-width:0}
+  .footer-main{grid-template-columns:1fr;gap:30px}
+  .footer-bottom{flex-direction:column}
+}
+</style>
 </head>
-<body class="landing-clean">
-<header class="header">
-  <div class="container nav">
-    <a class="wordmark" href="/">maphel</a>
-    <nav class="navlinks">
-      <a href="#sobre">Sobre</a>
-      <a href="#processo">Consultoria</a>
-      <a href="#contato">Tatiane</a>
-      <a href="#aplicacao">Aplicação</a>
+<body>
+<header class="top">
+  <div class="wrap nav">
+    <a class="brand" href="#">maphel</a>
+    <nav>
+      <a href="#atuacao">Atuação</a>
+      <a href="#atuacao">Processo</a>
+      <a href="#tatiane">Quem conduz</a>
     </nav>
-    <a class="btn btn-small" href="/formulario/">FAZER MINHA APLICAÇÃO</a>
+    <a class="btn small" href="/formulario/">FAZER MINHA APLICAÇÃO</a>
   </div>
 </header>
 
 <main>
-  <section class="lp-hero" id="sobre">
-    <div class="container lp-hero-grid">
-      <div class="lp-hero-copy">
-        <div class="eyebrow">Consultoria MAPHEL</div>
+  <section class="hero">
+    <div class="wrap hero-centered">
+      <div class="hero-copy-center">
+        <div class="kicker">CONSULTORIA ESTRATÉGICA</div>
         <h1>Oportunidade exclusiva para empresários que querem elevar o padrão de gestão da empresa sem precisar permanecer no centro de toda a operação.</h1>
         <p>Preencha a aplicação para uma consultoria estratégica, remota e 100% individualizada com Tatiane Resende.</p>
-        <div class="hero-actions">
+        <div class="actions">
           <a class="btn" href="/formulario/">FAZER MINHA APLICAÇÃO</a>
-          <a class="text-link" href="#servicos">CONHECER A CONSULTORIA</a>
+          <a class="link" href="#atuacao">ENTENDER COMO FUNCIONA</a>
         </div>
       </div>
+    </div>
+  </section>
 
-      <div class="lp-hero-art" aria-hidden="true">
-        <div class="arc arc-a"></div>
-        <div class="arc arc-b"></div>
-        <div class="building building-one"></div>
-        <div class="building building-two"></div>
-        <div class="building building-three"></div>
+  <section class="quick">
+    <div class="wrap quick-grid">
+      <div><strong>Plano de ação sob medida</strong></div>
+      <div><strong>Menos dependência do(a) dono(a)</strong></div>
+      <div><strong>Para qualquer lugar do Brasil e do mundo</strong></div>
+      <div><strong>Gestão mais madura e profissional</strong></div>
+    </div>
+  </section>
+
+  <section class="section" id="atuacao">
+    <div class="wrap">
+      <div class="heading">
+        <div>
+          <div class="kicker">ATUAÇÃO</div>
+          <h2>Leve sua empresa ao próximo nível com uma consultoria especializada.</h2>
+        </div>
+        <p class="focus-text">A Consultoria MAPHEL pode fazer sentido especialmente quando você sente que precisa:</p>
+      </div>
+
+      <div class="need-cards">
+        <article><span>01</span><h3>Sair do centro de todas as decisões</h3></article>
+        <article><span>02</span><h3>Criar mais autonomia para a equipe</h3></article>
+        <article><span>03</span><h3>Estruturar a empresa para o próximo nível de crescimento</h3></article>
+        <article><span>04</span><h3>Transformar planejamento em execução</h3></article>
+        <article><span>05</span><h3>Profissionalizar a gestão sem criar burocracias</h3></article>
+        <article><span>06</span><h3>Organizar processos da forma mais eficiente</h3></article>
       </div>
     </div>
   </section>
 
-  <section class="service-strip" id="servicos">
-    <div class="container service-grid">
-      <div class="service-item"><span class="service-icon">◎</span><div><strong>Plano de ação</strong><small>sob medida</small></div></div>
-      <div class="service-item"><span class="service-icon">□</span><div><strong>Menos dependência</strong><small>do(a) dono(a)</small></div></div>
-      <div class="service-item"><span class="service-icon">↗</span><div><strong>Para qualquer lugar</strong><small>do Brasil e do mundo</small></div></div>
-      <div class="service-item"><span class="service-icon">◇</span><div><strong>Gestão mais madura</strong><small>e profissional</small></div></div>
-    </div>
-  </section>
-
-  <section class="lp-acting" id="processo">
-    <div class="container lp-acting-grid">
-      <div class="lp-acting-copy">
-        <div class="eyebrow">Atuação</div>
-        <h2>Leve sua empresa ao próximo nível com uma consultoria especializada.</h2>
-        <p>A Consultoria MAPHEL pode fazer sentido especialmente quando você sente que precisa:</p>
-        <ul>
-          <li>Sair do centro de todas as decisões</li>
-          <li>Criar mais autonomia para a equipe</li>
-          <li>Estruturar a empresa para o próximo nível de crescimento</li>
-          <li>Transformar planejamento em execução</li>
-          <li>Profissionalizar a gestão sem criar burocracias</li>
-          <li>Organizar processos da forma mais eficiente</li>
-        </ul>
-        <a class="btn" href="/formulario/">FAZER MINHA APLICAÇÃO</a>
-      </div>
-
-      <div class="lp-architecture" aria-hidden="true">
-        <div class="shadow-plane p1"></div>
-        <div class="shadow-plane p2"></div>
-        <div class="shadow-plane p3"></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="lp-authority" id="contato">
-    <div class="container authority-top">
-      <div class="authority-copy">
-        <div class="eyebrow light">Quem está à frente</div>
+  <section class="tatiane" id="tatiane">
+    <div class="wrap tatiane-grid">
+      <div class="photo"><img src="/assets/tatiane-resende.png" alt="Tatiane Resende"></div>
+      <div>
+        <div class="kicker">QUEM ESTÁ À FRENTE</div>
         <h2>Tatiane Resende</h2>
         <p>15 anos de experiência com diagnósticos e planos de ação para operações complexas.</p>
         <p>Bagagem profissional robusta com planejamento, controladoria, finanças, processos, gestão de projetos e estruturação operacional.</p>
         <p>Participação na estruturação de empresas responsáveis por contratos que somam R$4,4 bilhões, operações que recebem cerca de 20 milhões de pessoas por ano e a criação de mais de 800 empregos diretos.</p>
         <p>Sócia-fundadora da Maphel, empresa de consultoria por meio da qual aplica esse repertório à realidade de empresas como a sua.</p>
+        <div class="numbers">
+          <div><strong>15</strong><small>anos de experiência</small></div>
+          <div><strong>R$ 4,4 bi</strong><small>em contratos</small></div>
+          <div><strong>~20 mi</strong><small>de pessoas recebidas/ano</small></div>
+          <div><strong>800+</strong><small>empregos diretos</small></div>
+        </div>
       </div>
-      <div class="authority-photo" id="tatiane">
-        <img src="/assets/tatiane-resende.png" alt="Tatiane Resende">
-      </div>
-    </div>
-
-    <div class="container authority-stats">
-      <div><strong>15</strong><small>anos de experiência</small></div>
-      <div><strong>R$ 4,4 bi</strong><small>em contratos</small></div>
-      <div><strong>~20 mi</strong><small>de pessoas recebidas/ano</small></div>
-      <div><strong>800+</strong><small>empregos diretos</small></div>
     </div>
   </section>
 
-  <section class="lp-next" id="aplicacao">
-    <div class="container lp-next-grid">
-      <div>
-        <div class="eyebrow">Aplicação</div>
+  <section class="cta">
+    <div class="wrap cta-box">
+      <div class="cta-copy">
+        <div class="kicker">APLICAÇÃO</div>
         <h2>Importante!</h2>
         <p>Realizar a aplicação não garante que você será selecionado(a). Os projetos são escolhidos conforme aderência e potencial de evolução.</p>
         <p>Preencha o formulário e aguarde o contato do nosso time.</p>
       </div>
-      <a class="btn dark-btn" href="/formulario/">FAZER MINHA APLICAÇÃO</a>
+      <a class="btn" href="/formulario/">FAZER MINHA APLICAÇÃO</a>
     </div>
   </section>
 </main>
 
-<footer class="footer">
-  <div class="container footer-grid">
-    <div><div class="wordmark">maphel</div><small>Consultoria estratégica</small></div>
-    <small>Empresas · Projetos · Operações</small>
+<footer class="foot">
+  <div class="wrap">
+    <div class="footer-main">
+      <div>
+        <div class="footer-brandline"><strong>MAPHEL</strong><span></span><small>Consultoria Estratégica</small></div>
+        <p>MAPHEL Consultoria Estratégica Ltda</p>
+        <p>CNPJ 61.536.638/0001-36</p>
+      </div>
+      <div>
+        <h4>Endereço</h4>
+        <p>Av. Eng. Luiz Carlos Berrini, 1748 – Sala 2103</p>
+        <p>Cidade Monções · São Paulo, SP</p>
+        <p>CEP 04.571-000</p>
+      </div>
+      <div>
+        <h4>Contato</h4>
+        <p>contato@maphel.com.br</p>
+        <p>(11) 2110–5943</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 MAPHEL · TODOS OS DIREITOS RESERVADOS</span>
+      <span>SÃO PAULO · BRASIL</span>
+    </div>
   </div>
 </footer>
 </body>
