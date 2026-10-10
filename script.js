@@ -9,9 +9,8 @@ let i=0;
 
 const meta=document.createElement('div');
 meta.className='form-progress-meta';
-meta.innerHTML='<span id="stepLabel"></span><strong id="stepName"></strong>';
+meta.innerHTML='<strong id="stepName"></strong>';
 form?.prepend(meta);
-const stepLabel=document.getElementById('stepLabel');
 const stepName=document.getElementById('stepName');
 
 fields.forEach(field=>field.classList.add('question-block'));
@@ -59,7 +58,6 @@ function show(){
   next.style.display=i===fields.length-1?'none':'inline-flex';
   submit.style.display=i===fields.length-1?'inline-flex':'none';
   bar.style.width=((i+1)/fields.length*100)+'%';
-  if(stepLabel) stepLabel.textContent=`Pergunta ${i+1} de ${fields.length}`;
   if(stepName) stepName.textContent=sectionName(fields[i]);
   document.querySelectorAll('.field-error').forEach(el=>el.classList.remove('field-error'));
   syncChoices();
