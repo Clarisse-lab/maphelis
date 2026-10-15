@@ -1,6 +1,6 @@
 // Netlify Forms -> Google Sheets API v4 (server-side only).
 // Required Netlify environment variables:
-// GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY, MAPHEL_SHEET_ID,
+// GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY, GOOGLE_SHEETS_SPREADSHEET_ID,
 // MAPHEL_WEBHOOK_TOKEN. Never commit private keys.
 const { createSign, timingSafeEqual } = require("node:crypto");
 
@@ -20,7 +20,7 @@ function equalSecret(a, b) {
 }
 async function googleToken() {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const key = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  const key = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(/\\n/g, "\n");
   if (!email || !key) throw new Error("Google service account credentials missing");
   const now = Math.floor(Date.now() / 1000);
   const unsigned = base64url({ alg: "RS256", typ: "JWT" }) + "." + base64url({
@@ -40,7 +40,7 @@ async function googleToken() {
 }
 async function sheets(path, token, init = {}) {
   const url = "https://sheets.googleapis.com/v4/spreadsheets/" +
-    encodeURIComponent(process.env.MAPHEL_SHEET_ID) + path;
+    encodeURIComponent(process.env.GOOGLE_SHEETS_SPREADSHEET_ID) + path;
   const res = await fetch(url, {
     ...init, headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" }
   });
