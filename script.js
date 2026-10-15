@@ -103,3 +103,46 @@ form?.querySelectorAll('input,select,textarea').forEach(el=>{
 });
 
 show();
+/* Preserve Netlify Forms and send the same submission to Google Sheets API
+   through a server-side Netlify Function (no webhook or browser credentials). */
+form?.addEventListener('submit',async(event)=>{
+  event.preventDefault();
+  if(!form.reportValidity()) return;
+  if(submit.disabled) return;
+  submit.disabled=true;
+  const label=submit.textContent;
+  submit.textContent='ENVIANDO...';
+  const fd=new FormData(form);
+  const data={};
+  for(const [key,value] of fd.entries()){
+    if(key==='bot-field'||key==='form-name') continue;
+    if(data[key]!==undefined){
+      data[key]=Array.isArray(data[key])?[...data[key],value]:[data[key],value];
+    }else data[key]=value;
+  }
+  const pendingKey='maphel_pending_submission';
+  let id=sessionStorage.getItem(pendingKey);
+  if(!id){id=crypto.randomUUID();sessionStorage.setItem(pendingKey,id);}
+  try{
+    // Netlify Forms is the primary intake and remains independent of Sheets.
+    const formRes=await fetch('/',{
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:new URLSearchParams(fd).toString()
+    });
+    if(!formRes.ok) throw new Error('Falha ao salvar no Netlify Forms');
+    const sheetsRes=await fetch('/.netlify/functions/maphel-sheets',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({id,form_name:'aplicacao-maphel',data,created_at:new Date().toISOString()})
+    });
+    if(!sheetsRes.ok) throw new Error('Falha ao sincronizar Google Sheets');
+    sessionStorage.removeItem(pendingKey);
+    window.location.assign(form.getAttribute('action')||'/obrigado/');
+  }catch(error){
+    console.error('Erro no envio da aplicação:',error);
+    alert('Não foi possível concluir o envio. Por favor, tente novamente.');
+    submit.disabled=false;
+    submit.textContent=label;
+  }
+});
