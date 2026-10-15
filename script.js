@@ -103,13 +103,16 @@ form?.querySelectorAll('input,select,textarea').forEach(el=>{
 });
 
 show();
-/* Send to Netlify Forms and Sheets separately, with safe retry on Sheets failure. */
+/* Independent delivery: one destination failing never prevents the other.
+   A successful write to either destination completes the visitor journey.
+   Failures are logged; automatic server-side replay is a separate improvement. */
 form?.addEventListener('submit',async(event)=>{
   event.preventDefault();
   if(!form.reportValidity() || submit.disabled) return;
   submit.disabled=true;
-  const label=submit.textContent;
+  const originalLabel=submit.textContent;
   submit.textContent='ENVIANDO...';
+
   const fd=new FormData(form);
   const data={};
   for(const [key,value] of fd.entries()){
@@ -117,34 +120,42 @@ form?.addEventListener('submit',async(event)=>{
     if(data[key]!==undefined) data[key]=Array.isArray(data[key])?[...data[key],value]:[data[key],value];
     else data[key]=value;
   }
-  const key='maphel_pending_submission';
+  const pendingKey='maphel_pending_submission';
   let pending;
-  try{pending=JSON.parse(sessionStorage.getItem(key)||'null')}catch(_){pending=null}
-  if(!pending) pending={id:crypto.randomUUID(),netlifySaved:false};
-  sessionStorage.setItem(key,JSON.stringify(pending));
-  try{
-    if(!pending.netlifySaved){
-      const formRes=await fetch('/formulario/',{
-        method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+  try{pending=JSON.parse(sessionStorage.getItem(pendingKey)||'null')}catch(_){pending=null}
+  if(!pending || !pending.id) pending={id:crypto.randomUUID(),netlifySaved:false,sheetsSaved:false};
+  sessionStorage.setItem(pendingKey,JSON.stringify(pending));
+
+  const netlifyRequest=pending.netlifySaved
+    ? Promise.resolve('previously saved')
+    : fetch('/formulario/',{
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
         body:new URLSearchParams(fd).toString()
-      });
-      if(!formRes.ok) throw new Error('Netlify Forms HTTP '+formRes.status);
-      pending.netlifySaved=true;
-      sessionStorage.setItem(key,JSON.stringify(pending));
-    }
-    const sheetsRes=await fetch('/.netlify/functions/maphel-sheets',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({id:pending.id,form_name:'aplicacao-maphel',data,created_at:new Date().toISOString()})
-    });
-    if(!sheetsRes.ok) throw new Error('Google Sheets Function HTTP '+sheetsRes.status);
-    sessionStorage.removeItem(key);
+      }).then(res=>{if(!res.ok) throw new Error('Netlify Forms HTTP '+res.status);return 'saved'});
+
+  const sheetsRequest=pending.sheetsSaved
+    ? Promise.resolve('previously saved')
+    : fetch('/.netlify/functions/maphel-sheets',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({id:pending.id,form_name:'aplicacao-maphel',data,created_at:new Date().toISOString()})
+      }).then(res=>{if(!res.ok) throw new Error('Google Sheets Function HTTP '+res.status);return 'saved'});
+
+  const [netlifyResult,sheetsResult]=await Promise.allSettled([netlifyRequest,sheetsRequest]);
+  if(netlifyResult.status==='fulfilled') pending.netlifySaved=true;
+  else console.error('MAPHEL: falha no Netlify Forms:',netlifyResult.reason);
+  if(sheetsResult.status==='fulfilled') pending.sheetsSaved=true;
+  else console.error('MAPHEL: falha no Google Sheets:',sheetsResult.reason);
+
+  if(pending.netlifySaved || pending.sheetsSaved){
+    sessionStorage.removeItem(pendingKey);
     window.location.assign(form.getAttribute('action')||'/obrigado/');
-  }catch(error){
-    console.error('MAPHEL: erro no envio:',error);
-    alert(pending.netlifySaved
-      ? 'Sua aplicação foi recebida, mas houve um problema na sincronização com a planilha. Não preencha novamente. Tente enviar mais uma vez nesta tela ou contate o suporte.'
-      : 'Não foi possível salvar sua aplicação. Tente novamente. Detalhes técnicos: '+error.message);
-    submit.disabled=false;
-    submit.textContent=label;
+    return;
   }
+
+  sessionStorage.setItem(pendingKey,JSON.stringify(pending));
+  alert('Não foi possível concluir o envio agora. Tente novamente em instantes.');
+  submit.disabled=false;
+  submit.textContent=originalLabel;
 });
