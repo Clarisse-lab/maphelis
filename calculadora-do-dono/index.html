@@ -954,7 +954,7 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
     button.disabled = true;
     button.textContent = 'SALVANDO...';
     try {
-      var response = await fetch('/calculadora-do-dono/', {
+      var response = await fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams(new FormData(form)).toString()
