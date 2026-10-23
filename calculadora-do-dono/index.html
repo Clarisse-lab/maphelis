@@ -934,11 +934,22 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
     var pct = readPct();
     var fat = readMoney('fat', 100000000, 'O faturamento não pode ser negativo.');
     var renda = readMoney('renda', 1000000, 'A renda não pode ser negativa.');
-    if ([j, ds, f, pct, fat, renda].some(function (v) { return v.value === undefined; }) || D > j.value) {
-      err.textContent = 'Complete corretamente todos os campos da calculadora antes de liberar seu resultado.';
+    var missing = [];
+    if (j.value === undefined) missing.push('horas de trabalho por dia');
+    if (ds.value === undefined) missing.push('dias de trabalho por semana');
+    if (f.value === undefined) missing.push('dias de descanso');
+    if (pct.value === undefined) missing.push('percentual do faturamento');
+    if (fat.value === undefined) missing.push('faturamento mensal');
+    if (renda.value === undefined) missing.push('renda mensal');
+    if (j.value !== undefined && D > j.value) missing.push('horas delegáveis (não podem superar a jornada)');
+    if (missing.length) {
+      err.textContent = 'Para enviar, preencha ou corrija: ' + missing.join('; ') + '.';
       err.hidden = false;
+      err.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      console.warn('MAPHEL calculadora: envio não iniciado; campos pendentes:', missing);
       return;
     }
+    console.info('MAPHEL calculadora: validação concluída, iniciando envio.');
     var form = event.currentTarget;
     var values = {
       horas_dia: j.value, dias_semana: ds.value, dias_descanso: f.value,
