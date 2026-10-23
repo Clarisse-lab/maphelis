@@ -954,12 +954,37 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
     button.disabled = true;
     button.textContent = 'SALVANDO...';
     try {
-      var response = await fetch('/', {
+      var leadId = window.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + '-' + Math.random().toString(36).slice(2);
+      var data = {
+        nome: form.elements.namedItem('nome').value.trim(),
+        whatsapp: form.elements.namedItem('whatsapp').value.trim(),
+        email: form.elements.namedItem('email').value.trim()
+      };
+      Object.keys(values).forEach(function (key) { data[key] = values[key]; });
+      ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(function (key) {
+        data[key] = form.elements.namedItem(key).value;
+      });
+      // O Netlify Forms pode responder 200 HTML sem registrar a submissão.
+      // Somente a confirmação JSON da função do Google Sheets libera o resultado.
+      var sheetsResponse = await fetch('/.netlify/functions/maphel-calculator-sheets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: leadId, data: data })
+      });
+      var sheetsResult = await sheetsResponse.json();
+      if (!sheetsResponse.ok || !['Saved', 'Already saved'].includes(sheetsResult.message)) {
+        throw new Error('Google Sheets HTTP ' + sheetsResponse.status + ': ' + (sheetsResult.message || 'sem confirmação'));
+      }
+      console.info('MAPHEL calculadora: lead confirmado no Google Sheets.');
+      // Envio adicional ao Netlify Forms, sem confundir HTTP 200 com confirmação de armazenamento.
+      fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams(new FormData(form)).toString()
-      });
-      if (!response.ok) throw new Error('HTTP ' + response.status);
+      }).then(function (response) {
+        if (!response.ok) console.warn('MAPHEL calculadora: Netlify Forms HTTP ' + response.status);
+        else console.info('MAPHEL calculadora: Netlify Forms retornou HTTP 200; armazenamento não confirmado.');
+      }).catch(function (error) { console.warn('MAPHEL calculadora: Netlify Forms indisponível:', error); });
       $('result').classList.remove('is-locked');
       calc();
       $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
