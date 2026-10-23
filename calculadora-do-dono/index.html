@@ -251,6 +251,21 @@ details.detail ol { margin: 10px 0 0; padding-left: 20px; display: flex; flex-di
 details.detail ol b { color: var(--noite); }
 details.sub { margin-top: 6px; }
 details.sub summary { cursor: pointer; font-weight: 600; color: var(--petroleo); font-size: 14px; }
+
+/* Captura de lead antes da liberação do resultado */
+.result.is-locked > :not(#lead-gate) { display: none !important; }
+#lead-gate { display: flex; flex-direction: column; gap: 16px; }
+.result:not(.is-locked) #lead-gate { display: none; }
+#lead-gate h2 { margin: 0; font-size: clamp(24px,3vw,32px); line-height: 1.2; font-weight: 600; }
+#lead-gate p { margin: 0; color: var(--cinza); font-size: 15px; }
+#lead-gate label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; }
+#lead-gate input:not([type="hidden"]) { width: 100%; border: 1px solid var(--linha); border-radius: 10px; padding: 13px 14px; font: 500 16px var(--font); color: var(--noite); background: #fff; }
+#lead-gate input:focus-visible { outline: 2px solid var(--petroleo); outline-offset: 2px; }
+#lead-gate button { border: 0; cursor: pointer; background: var(--petroleo); color: white; border-radius: 12px; padding: 15px 20px; font: 600 16px var(--font); }
+#lead-gate button:disabled { opacity: .6; cursor: wait; }
+#lead-gate .lead-error { color: var(--erro-escuro); font-weight: 600; }
+#lead-gate .privacy { font-size: 12px; }
+
 </style>
 <!-- Meta Pixel Code -->
 <script>
@@ -377,7 +392,31 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
       </div>
     </form>
 
-    <div class="result" id="result" aria-live="polite">
+    <div class="result is-locked" id="result" aria-live="polite">
+      <form id="lead-gate" name="calculadora-dono-maphel" method="POST" data-netlify="true" netlify-honeypot="bot-field" autocomplete="on">
+        <h2>Seu resultado está quase pronto</h2>
+        <p>Preencha seus dados para liberar a análise da sua rotina e da sua empresa.</p>
+        <input type="hidden" name="form-name" value="calculadora-dono-maphel">
+        <div hidden aria-hidden="true"><label>Não preencha <input name="bot-field" tabindex="-1" autocomplete="off"></label></div>
+        <label>Nome completo <input type="text" name="nome" autocomplete="name" required maxlength="120"></label>
+        <label>WhatsApp com DDD <input type="tel" name="whatsapp" autocomplete="tel" inputmode="tel" placeholder="(11) 99999-9999" required minlength="10" maxlength="20"></label>
+        <label>E-mail <input type="email" name="email" autocomplete="email" required maxlength="200"></label>
+        <input type="hidden" name="horas_dia">
+        <input type="hidden" name="dias_semana">
+        <input type="hidden" name="dias_descanso">
+        <input type="hidden" name="horas_delegaveis_dia">
+        <input type="hidden" name="percentual_faturamento">
+        <input type="hidden" name="faturamento_mensal">
+        <input type="hidden" name="renda_mensal">
+        <input type="hidden" name="utm_source">
+        <input type="hidden" name="utm_medium">
+        <input type="hidden" name="utm_campaign">
+        <input type="hidden" name="utm_content">
+        <input type="hidden" name="utm_term">
+        <button type="submit" id="lead-submit">LIBERAR MEU RESULTADO</button>
+        <p class="lead-error" id="lead-error" role="alert" hidden></p>
+        <p class="privacy">Ao enviar, você autoriza o uso dos seus dados pela MAPHEL para contato sobre seus serviços, conforme a política de privacidade aplicável.</p>
+      </form>
       <p class="waiting" id="waiting">Responda às perguntas e veja aqui quanto do seu ano a operação leva.</p>
 
       <div class="cards" id="cards">
@@ -884,6 +923,54 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
     var q = window.location.search;
     if (q && q.length > 1) { var a = $('cta'); a.href = a.href + (a.href.indexOf('?') > -1 ? '&' : '?') + q.slice(1); }
   } catch (e) {}
+
+  /* Liberação somente depois do recebimento do lead no Netlify Forms. */
+  $('lead-gate').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    var err = $('lead-error');
+    err.hidden = true;
+    err.textContent = '';
+    var j = readChoice('J'), ds = readChoice('DS'), f = readChoice('F');
+    var pct = readPct();
+    var fat = readMoney('fat', 100000000, 'O faturamento não pode ser negativo.');
+    var renda = readMoney('renda', 1000000, 'A renda não pode ser negativa.');
+    if ([j, ds, f, pct, fat, renda].some(function (v) { return v.value === undefined; }) || D > j.value) {
+      err.textContent = 'Complete corretamente todos os campos da calculadora antes de liberar seu resultado.';
+      err.hidden = false;
+      return;
+    }
+    var form = event.currentTarget;
+    var values = {
+      horas_dia: j.value, dias_semana: ds.value, dias_descanso: f.value,
+      horas_delegaveis_dia: D, percentual_faturamento: pct.value,
+      faturamento_mensal: fat.value, renda_mensal: renda.value
+    };
+    Object.keys(values).forEach(function (key) { form.elements.namedItem(key).value = String(values[key]); });
+    var params = new URLSearchParams(window.location.search);
+    ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(function (key) {
+      form.elements.namedItem(key).value = params.get(key) || '';
+    });
+    var button = $('lead-submit');
+    button.disabled = true;
+    button.textContent = 'SALVANDO...';
+    try {
+      var response = await fetch('/calculadora-do-dono/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(new FormData(form)).toString()
+      });
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      $('result').classList.remove('is-locked');
+      calc();
+      $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (error) {
+      console.error('MAPHEL calculadora: erro ao salvar lead:', error);
+      err.textContent = 'Não conseguimos registrar seus dados. Tente novamente para liberar o resultado.';
+      err.hidden = false;
+      button.disabled = false;
+      button.textContent = 'LIBERAR MEU RESULTADO';
+    }
+  });
 
   calc();
 })();
