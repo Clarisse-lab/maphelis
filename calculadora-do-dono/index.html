@@ -913,7 +913,7 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
     ticking = false;
     var rc = $('result').getBoundingClientRect();
     resultInView = rc.top < window.innerHeight * 0.8 && rc.bottom > 80;
-    $('sticky').hidden = !$('sticky-t').textContent || resultInView;
+    $('sticky').hidden = $('result').classList.contains('is-locked') || !$('sticky-t').textContent || resultInView;
   }
   function onScroll() { checkView(); }
   window.addEventListener('scroll', onScroll, { passive: true });
