@@ -393,7 +393,7 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
     </form>
 
     <div class="result is-locked" id="result" aria-live="polite">
-      <form id="lead-gate" name="calculadora-dono-maphel" method="POST" data-netlify="true" netlify-honeypot="bot-field" autocomplete="on">
+      <form id="lead-gate" name="calculadora-dono-maphel" method="POST" data-netlify="true" netlify-honeypot="bot-field" autocomplete="on" novalidate>
         <h2>Seu resultado está quase pronto</h2>
         <p>Preencha seus dados para liberar a análise da sua rotina e da sua empresa.</p>
         <input type="hidden" name="form-name" value="calculadora-dono-maphel">
@@ -924,7 +924,8 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
     if (q && q.length > 1) { var a = $('cta'); a.href = a.href + (a.href.indexOf('?') > -1 ? '&' : '?') + q.slice(1); }
   } catch (e) {}
 
-  /* Liberação somente depois do recebimento do lead no Netlify Forms. */
+  console.warn('MAPHEL calculadora: diagnóstico de envio ativo (v2026-10-23b).');
+  /* Captura de lead: validação explícita, tentativas independentes e erros visíveis. */
   $('lead-gate').addEventListener('submit', async function (event) {
     event.preventDefault();
     var err = $('lead-error');
@@ -949,8 +950,18 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
       console.warn('MAPHEL calculadora: envio não iniciado; campos pendentes:', missing);
       return;
     }
-    console.info('MAPHEL calculadora: validação concluída, iniciando envio.');
     var form = event.currentTarget;
+    var nome = form.elements.namedItem('nome').value.trim();
+    var email = form.elements.namedItem('email').value.trim();
+    var whatsapp = form.elements.namedItem('whatsapp').value.trim();
+    if (!nome || !/^\S+@\S+\.\S+$/.test(email) || !/^\d{10,13}$/.test(whatsapp.replace(/\D/g, ''))) {
+      err.textContent = 'Confira seu nome, e-mail e WhatsApp com DDD (10 ou 11 dígitos).';
+      err.hidden = false;
+      err.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      console.warn('MAPHEL calculadora: dados de contato inválidos; envio não iniciado.');
+      return;
+    }
+    console.warn('MAPHEL calculadora: validação concluída; iniciando envio.');
     var values = {
       horas_dia: j.value, dias_semana: ds.value, dias_descanso: f.value,
       horas_delegaveis_dia: D, percentual_faturamento: pct.value,
@@ -975,33 +986,46 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
       ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(function (key) {
         data[key] = form.elements.namedItem(key).value;
       });
-      // O Netlify Forms pode responder 200 HTML sem registrar a submissão.
-      // Somente a confirmação JSON da função do Google Sheets libera o resultado.
-      var sheetsResponse = await fetch('/.netlify/functions/maphel-calculator-sheets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: leadId, data: data })
-      });
-      var sheetsResult = await sheetsResponse.json();
-      if (!sheetsResponse.ok || !['Saved', 'Already saved'].includes(sheetsResult.message)) {
-        throw new Error('Google Sheets HTTP ' + sheetsResponse.status + ': ' + (sheetsResult.message || 'sem confirmação'));
-      }
-      console.info('MAPHEL calculadora: lead confirmado no Google Sheets.');
-      // Envio adicional ao Netlify Forms, sem confundir HTTP 200 com confirmação de armazenamento.
-      fetch('/', {
+      // As duas tentativas são independentes: falha no Sheets não impede o Netlify Forms.
+      var formsPromise = fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams(new FormData(form)).toString()
       }).then(function (response) {
-        if (!response.ok) console.warn('MAPHEL calculadora: Netlify Forms HTTP ' + response.status);
-        else console.info('MAPHEL calculadora: Netlify Forms retornou HTTP 200; armazenamento não confirmado.');
-      }).catch(function (error) { console.warn('MAPHEL calculadora: Netlify Forms indisponível:', error); });
+        console.warn('MAPHEL calculadora: Netlify Forms HTTP ' + response.status +
+          ' (HTTP 200 não comprova registro no painel).');
+        return response.ok;
+      }).catch(function (error) {
+        console.error('MAPHEL calculadora: falha de rede no Netlify Forms:', error);
+        return false;
+      });
+      var sheetsResponse;
+      try {
+        sheetsResponse = await fetch('/.netlify/functions/maphel-calculator-sheets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: leadId, data: data })
+        });
+      } catch (networkError) {
+        await formsPromise;
+        throw new Error('Não foi possível acessar a função do Google Sheets: ' + networkError.message);
+      }
+      var sheetsResult = await sheetsResponse.json().catch(function () { return {}; });
+      console.warn('MAPHEL calculadora: Google Sheets HTTP ' + sheetsResponse.status +
+        ', resposta: ' + (sheetsResult.message || 'sem JSON de confirmação'));
+      if (!sheetsResponse.ok || !['Saved', 'Already saved'].includes(sheetsResult.message)) {
+        await formsPromise;
+        throw new Error('Google Sheets HTTP ' + sheetsResponse.status + ': ' +
+          (sheetsResult.message || 'resposta sem confirmação'));
+      }
+      console.warn('MAPHEL calculadora: lead confirmado no Google Sheets.');
       $('result').classList.remove('is-locked');
       calc();
       $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (error) {
       console.error('MAPHEL calculadora: erro ao salvar lead:', error);
-      err.textContent = 'Não conseguimos registrar seus dados. Tente novamente para liberar o resultado.';
+      err.textContent = 'Falha ao registrar o lead: ' + error.message + '. Tente novamente. Se persistir, informe este erro à MAPHEL.';
+      err.scrollIntoView({ behavior: 'smooth', block: 'center' });
       err.hidden = false;
       button.disabled = false;
       button.textContent = 'LIBERAR MEU RESULTADO';
