@@ -60,7 +60,7 @@ exports.handler = async (event) => {
     if(raw["bot-field"]) return response(400,"Invalid submission");
     const data=raw.data||{};
     const id=String(raw.id||"");
-    if(!id || id.length>100 || !String(data.nome||"").trim() || !/^\\S+@\\S+\\.\\S+$/.test(String(data.email||"")) || !/^\\d{10,13}$/.test(String(data.whatsapp||"").replace(/\\D/g,""))) return response(400,"Invalid lead");
+    if(!id || id.length>100 || !String(data.nome||"").trim() || !/^\S+@\S+\.\S+$/.test(String(data.email||"")) || !/^\d{10,13}$/.test(String(data.whatsapp||"").replace(/\D/g,""))) return response(400,"Invalid lead");
     const token=await googleToken();
     await ensureTab(token);
     const ids=await sheets("/values/"+encodeURIComponent("'"+TAB+"'!B2:B")+"?majorDimension=COLUMNS",token);
