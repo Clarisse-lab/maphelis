@@ -60,6 +60,13 @@ body {
 h1 { margin: 10px 0 0; font-size: clamp(32px, 5vw, 56px); line-height: 1.06; font-weight: 500; letter-spacing: -.03em; text-wrap: balance; }
 .sub { margin: 14px 0 0; font-size: clamp(17px, 2vw, 20px); color: var(--claro); max-width: 62ch; }
 .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 24px; align-items: start; }
+/* Antes da liberação, a calculadora vira uma sequência única, sem coluna vazia. */
+.grid:has(#result.is-locked) { grid-template-columns: minmax(0, 1fr); max-width: 760px; width: 100%; margin-inline: auto; }
+.grid:has(#result.is-locked) #calc { width: 100%; }
+.grid:has(#result.is-locked) #result { width: 100%; }
+.grid:has(#result.is-locked) #gate-intro { gap: 12px; }
+.grid:has(#result.is-locked) #gate-intro button { margin-top: 4px; }
+
 @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } }
 .panel { background: rgba(12,76,97,.55); border: 1px solid rgba(67,182,189,.28); border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 24px; min-width: 0; }
 @media (max-width: 480px) { .panel, .result { padding: 22px 18px; } }
@@ -303,6 +310,7 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
 
   <section class="grid" aria-label="Simulação">
     <form class="panel" id="calc" autocomplete="off" novalidate>
+      <p class="group-t" style="margin:0">ETAPA 1 DE 2 · RESPONDA ÀS PERGUNTAS ABAIXO</p>
       <div class="group">
         <p class="group-t">A sua rotina</p>
 
@@ -403,7 +411,7 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
     <div class="result is-locked" id="result" aria-live="polite">
       <div id="gate-intro">
         <h2>Descubra o impacto da sua rotina</h2>
-        <p>Preencha a simulação ao lado para descobrir quanto tempo e dinheiro sua operação pode estar consumindo.</p>
+        <p>Você chegou ao final da simulação. Clique abaixo para descobrir quanto tempo e dinheiro sua operação pode estar consumindo.</p>
         <button type="button" id="gate-reveal">VER MEU RESULTADO</button>
         <p class="lead-error" id="gate-intro-error" role="alert" hidden></p>
       </div>
