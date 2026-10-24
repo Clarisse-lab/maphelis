@@ -253,7 +253,15 @@ details.sub { margin-top: 6px; }
 details.sub summary { cursor: pointer; font-weight: 600; color: var(--petroleo); font-size: 14px; }
 
 /* Captura de lead antes da liberação do resultado */
-.result.is-locked > :not(#lead-gate) { display: none !important; }
+.result.is-locked > :not(#lead-gate):not(#gate-intro) { display: none !important; }
+#gate-intro { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
+#gate-intro h2 { margin: 0; font-size: clamp(24px,3vw,32px); line-height: 1.2; font-weight: 600; }
+#gate-intro p { margin: 0; color: var(--cinza); font-size: 15px; line-height: 1.6; }
+#gate-intro button { border: 0; cursor: pointer; background: var(--petroleo); color: white; border-radius: 12px; padding: 15px 20px; font: 600 16px var(--font); width: 100%; }
+#gate-intro button:hover { filter: brightness(1.12); }
+#gate-intro .lead-error { color: #a62c28; }
+#lead-gate[hidden], #gate-intro[hidden] { display: none !important; }
+.result:not(.is-locked) #gate-intro { display: none !important; }
 #lead-gate { display: flex; flex-direction: column; gap: 16px; }
 .result:not(.is-locked) #lead-gate { display: none; }
 #lead-gate h2 { margin: 0; font-size: clamp(24px,3vw,32px); line-height: 1.2; font-weight: 600; }
@@ -393,7 +401,13 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
     </form>
 
     <div class="result is-locked" id="result" aria-live="polite">
-      <form id="lead-gate" name="calculadora-dono-maphel" method="POST" data-netlify="true" netlify-honeypot="bot-field" autocomplete="on" novalidate>
+      <div id="gate-intro">
+        <h2>Descubra o impacto da sua rotina</h2>
+        <p>Preencha a simulação ao lado para descobrir quanto tempo e dinheiro sua operação pode estar consumindo.</p>
+        <button type="button" id="gate-reveal">VER MEU RESULTADO</button>
+        <p class="lead-error" id="gate-intro-error" role="alert" hidden></p>
+      </div>
+      <form id="lead-gate" hidden name="calculadora-dono-maphel" method="POST" data-netlify="true" netlify-honeypot="bot-field" autocomplete="on" novalidate>
         <h2>Seu resultado está quase pronto</h2>
         <p>Preencha seus dados para liberar a análise da sua rotina e da sua empresa.</p>
         <input type="hidden" name="form-name" value="calculadora-dono-maphel">
@@ -925,6 +939,32 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
   } catch (e) {}
 
   console.warn('MAPHEL calculadora: diagnóstico de envio ativo (v2026-10-23b).');
+  /* O visitante só descobre a etapa de contato depois de concluir a simulação. */
+  $('gate-reveal').addEventListener('click', function () {
+    var j = readChoice('J'), ds = readChoice('DS'), f = readChoice('F');
+    var pct = readPct(), fat = readMoney('fat', 100000000, 'O faturamento não pode ser negativo.');
+    var renda = readMoney('renda', 1000000, 'A renda não pode ser negativa.');
+    var missing = [];
+    if (j.value === undefined) missing.push('horas de trabalho por dia');
+    if (ds.value === undefined) missing.push('dias de trabalho por semana');
+    if (f.value === undefined) missing.push('dias de descanso');
+    if (pct.value === undefined) missing.push('percentual do faturamento');
+    if (fat.value === undefined) missing.push('faturamento mensal');
+    if (renda.value === undefined) missing.push('renda mensal');
+    if (j.value !== undefined && D > j.value) missing.push('horas delegáveis');
+    var err = $('gate-intro-error');
+    if (missing.length) {
+      err.textContent = 'Complete a simulação antes de ver o resultado. Falta: ' + missing.join('; ') + '.';
+      err.hidden = false;
+      err.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    err.hidden = true;
+    $('gate-intro').hidden = true;
+    $('lead-gate').hidden = false;
+    $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    $('lead-gate').elements.namedItem('nome').focus({ preventScroll: true });
+  });
   /* Captura de lead: validação explícita, tentativas independentes e erros visíveis. */
   $('lead-gate').addEventListener('submit', async function (event) {
     event.preventDefault();
