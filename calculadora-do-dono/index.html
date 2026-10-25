@@ -946,7 +946,7 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
     if (q && q.length > 1) { var a = $('cta'); a.href = a.href + (a.href.indexOf('?') > -1 ? '&' : '?') + q.slice(1); }
   } catch (e) {}
 
-  console.warn('MAPHEL calculadora: diagnóstico de envio ativo (v2026-10-23b).');
+
   /* O visitante só descobre a etapa de contato depois de concluir a simulação. */
   $('gate-reveal').addEventListener('click', function () {
     var j = readChoice('J'), ds = readChoice('DS'), f = readChoice('F');
@@ -1009,7 +1009,7 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
       console.warn('MAPHEL calculadora: dados de contato inválidos; envio não iniciado.');
       return;
     }
-    console.warn('MAPHEL calculadora: validação concluída; iniciando envio.');
+
     var values = {
       horas_dia: j.value, dias_semana: ds.value, dias_descanso: f.value,
       horas_delegaveis_dia: D, percentual_faturamento: pct.value,
@@ -1024,55 +1024,23 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
     button.disabled = true;
     button.textContent = 'SALVANDO...';
     try {
-      var leadId = window.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + '-' + Math.random().toString(36).slice(2);
-      var data = {
-        nome: form.elements.namedItem('nome').value.trim(),
-        whatsapp: form.elements.namedItem('whatsapp').value.trim(),
-        email: form.elements.namedItem('email').value.trim()
-      };
-      Object.keys(values).forEach(function (key) { data[key] = values[key]; });
-      ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(function (key) {
-        data[key] = form.elements.namedItem(key).value;
-      });
-      // As duas tentativas são independentes: falha no Sheets não impede o Netlify Forms.
-      var formsPromise = fetch('/', {
+      // Netlify Forms é o destino principal dos leads desta calculadora.
+      // A planilha está temporariamente bloqueada por falta de armazenamento.
+      var formsResponse = await fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams(new FormData(form)).toString()
-      }).then(function (response) {
-        console.warn('MAPHEL calculadora: Netlify Forms HTTP ' + response.status +
-          ' (HTTP 200 não comprova registro no painel).');
-        return response.ok;
-      }).catch(function (error) {
-        console.error('MAPHEL calculadora: falha de rede no Netlify Forms:', error);
-        return false;
       });
-      var sheetsResponse;
-      try {
-        sheetsResponse = await fetch('/.netlify/functions/maphel-calculator-sheets', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: leadId, data: data })
-        });
-      } catch (networkError) {
-        await formsPromise;
-        throw new Error('Não foi possível acessar a função do Google Sheets: ' + networkError.message);
+      if (!formsResponse.ok) {
+        throw new Error('Netlify Forms HTTP ' + formsResponse.status);
       }
-      var sheetsResult = await sheetsResponse.json().catch(function () { return {}; });
-      console.warn('MAPHEL calculadora: Google Sheets HTTP ' + sheetsResponse.status +
-        ', resposta: ' + (sheetsResult.message || 'sem JSON de confirmação'));
-      if (!sheetsResponse.ok || !['Saved', 'Already saved'].includes(sheetsResult.message)) {
-        await formsPromise;
-        throw new Error('Google Sheets HTTP ' + sheetsResponse.status + ': ' +
-          (sheetsResult.message || 'resposta sem confirmação'));
-      }
-      console.warn('MAPHEL calculadora: lead confirmado no Google Sheets.');
+      console.info('MAPHEL calculadora: envio aceito pelo Netlify Forms (HTTP ' + formsResponse.status + ').');
       $('result').classList.remove('is-locked');
       calc();
       $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (error) {
       console.error('MAPHEL calculadora: erro ao salvar lead:', error);
-      err.textContent = 'Falha ao registrar o lead: ' + error.message + '. Tente novamente. Se persistir, informe este erro à MAPHEL.';
+      err.textContent = 'Não foi possível enviar seus dados agora. Tente novamente.';
       err.scrollIntoView({ behavior: 'smooth', block: 'center' });
       err.hidden = false;
       button.disabled = false;
