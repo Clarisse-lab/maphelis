@@ -1126,6 +1126,14 @@ if(c.personal&&!$('c-rest').hidden){var label=$('re-big').querySelector('small')
         throw new Error('Netlify Forms HTTP ' + formsResponse.status);
       }
       console.info('MAPHEL calculadora: envio aceito pelo Netlify Forms (HTTP ' + formsResponse.status + ').');
+      // Conversão real: somente após Netlify Forms confirmar o envio.
+      // Não representa compra; evitar duplicar o Lead no mesmo carregamento.
+      if (!window.__maphelCalculatorLeadTracked) {
+        window.__maphelCalculatorLeadTracked = true;
+        if (typeof window.fbq === 'function') {
+          window.fbq('track', 'Lead', { content_name: 'Calculadora do Dono', content_category: 'Calculadora MAPHEL' });
+        }
+      }
       // O registro na planilha ocorre em paralelo à exibição do resultado.
       // Um ID único evita duplicação se o endpoint receber o mesmo envio novamente.
       var sheetId = (window.crypto && typeof window.crypto.randomUUID === 'function')
