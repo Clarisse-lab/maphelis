@@ -287,6 +287,41 @@ details.sub summary { cursor: pointer; font-weight: 600; color: var(--petroleo);
 .copy-intro[hidden]{display:none!important}.copy-label{font-size:11px;font-weight:700;letter-spacing:.14em;color:#146f8a}
 .copy-intro h2{font-size:clamp(24px,3vw,34px);line-height:1.2;margin:12px 0}.copy-intro p{font-size:16px;line-height:1.7}
 .copy-argument{font-size:14px;line-height:1.65;margin:14px 0 0}#b-end .close span{line-height:1.75}
+
+/* Layout de leitura: formulário primeiro, relatório em largura total abaixo.
+   Não altera estados, eventos, cálculo nem captura do formulário. */
+.grid{grid-template-columns:minmax(0,1fr);gap:28px;width:100%;max-width:none}
+.grid #calc{width:100%;max-width:760px;margin-inline:auto}
+.grid #result{width:100%;max-width:none}
+.grid:has(#result.is-locked){grid-template-columns:minmax(0,1fr);max-width:none;width:100%}
+.grid:has(#result.is-locked) #calc{max-width:760px}
+.grid:has(#result.is-locked) #result{max-width:760px;margin-inline:auto}
+@media(min-width:921px){
+  .result:not(.is-locked){padding:clamp(30px,4vw,48px);gap:26px}
+  .result:not(.is-locked) .copy-intro{padding:36px 42px}
+  .result:not(.is-locked) .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+  .result:not(.is-locked) .card.money,.result:not(.is-locked) .card.biz{grid-column:auto}
+  .result:not(.is-locked) .card.tempo{grid-column:1/-1}
+  .result:not(.is-locked) .card{padding:24px 26px;gap:12px}
+  .result:not(.is-locked) .card.tempo{padding:0}
+  .result:not(.is-locked) .card.tempo .tot{padding:24px 26px}
+  .result:not(.is-locked) #strip{padding:22px 26px}
+  .result:not(.is-locked) #b-end .close{padding:30px 34px}
+}
+@media(max-width:920px){
+  .grid{gap:18px}
+  .grid #calc,.grid:has(#result.is-locked) #calc{max-width:100%}
+  .grid:has(#result.is-locked) #result{max-width:100%}
+}
+@media(max-width:600px){
+  .grid{gap:16px}
+  .result:not(.is-locked) .cards{grid-template-columns:minmax(0,1fr)}
+  .result:not(.is-locked) .card.money,.result:not(.is-locked) .card.biz,.result:not(.is-locked) .card.tempo{grid-column:1}
+  .copy-intro{padding:22px 20px}
+  .copy-intro h2{font-size:clamp(23px,7vw,30px)}
+  .card .big{overflow-wrap:anywhere}
+  .cta .btn{width:100%;text-align:center}
+}
 </style><!-- Meta Pixel Code -->
 <script>
 !function(f,b,e,v,n,t,s)
