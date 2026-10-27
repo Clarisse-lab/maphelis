@@ -282,7 +282,12 @@ details.sub summary { cursor: pointer; font-weight: 600; color: var(--petroleo);
 #lead-gate .privacy { font-size: 12px; }
 
 </style>
-<!-- Meta Pixel Code -->
+<style>
+.copy-intro{padding:clamp(22px,4vw,36px);border-radius:18px;border:1px solid #bad8d6;background:linear-gradient(130deg,#e8f4f2,#f7fbf9);margin-bottom:20px}
+.copy-intro[hidden]{display:none!important}.copy-label{font-size:11px;font-weight:700;letter-spacing:.14em;color:#146f8a}
+.copy-intro h2{font-size:clamp(24px,3vw,34px);line-height:1.2;margin:12px 0}.copy-intro p{font-size:16px;line-height:1.7}
+.copy-argument{font-size:14px;line-height:1.65;margin:14px 0 0}#b-end .close span{line-height:1.75}
+</style><!-- Meta Pixel Code -->
 <script>
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -441,22 +446,22 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
       </form>
       <p class="waiting" id="waiting">Responda às perguntas e veja aqui quanto do seu ano a operação leva.</p>
 
-      <div class="cards" id="cards">
+      <section id="copy-intro" class="copy-intro" hidden><span class="copy-label">LEITURA DA SUA OPERAÇÃO</span><h2 id="copy-intro-title"></h2><p id="copy-intro-body"></p></section><div class="cards" id="cards">
         <div class="card" id="c-agenda" hidden>
           <span class="k">Sua agenda</span>
           <p class="big" id="ag-big"></p>
-          <p id="ag-a"></p>
+          <p id="ag-a"></p><p class="copy-argument" id="copy-agenda"></p>
           
         </div>
         <div class="card rest" id="c-rest" hidden>
           <span class="k">Seu descanso</span>
           <p class="big" id="re-big"></p>
-          <p id="re-a"></p>
+          <p id="re-a"></p><p class="copy-argument" id="copy-rest"></p>
         </div>
-        <div class="card tempo" id="c-tempo" hidden><div class="tot" id="ag-tot"></div></div>
+        <div class="card tempo" id="c-tempo" hidden><div class="tot" id="ag-tot"></div><p class="copy-argument" id="copy-tempo"></p></div>
         <div class="card money" id="c-money" hidden>
           <span class="k">Quanto vale esse tempo</span>
-          <p class="big" id="mo-big"></p>
+          <p class="big" id="mo-big"></p><p class="copy-argument" id="copy-money"></p>
           <p>Calculado em horas: as tarefas mais as horas que a sua rotina ocupa nos dias de descanso que faltaram.</p>
           <ul class="comp"><li>Tarefas delegáveis: <b id="mo-t"></b></li><li>Descanso não tirado: <b id="mo-d"></b></li></ul>
           <p class="tag">Base: a sua renda numa semana de 40 horas. É referência, não perda de caixa.</p>
@@ -464,7 +469,7 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
         <div class="card biz" id="c-biz" hidden>
           <span class="k">Sua empresa</span>
           <p class="big" id="bz-big"></p>
-          <p id="bz-a"></p>
+          <p id="bz-a"></p><p class="copy-argument" id="copy-biz"></p>
           <p class="tag">Estimativa sua. Exposição não é perda certa e não se soma ao valor do seu tempo.</p>
         </div>
       </div>
@@ -473,7 +478,7 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
       <p class="hint-biz" id="hint-biz" hidden></p>
 
       <div class="strip" id="strip" hidden>
-        <p id="wk-a"></p>
+        <p id="wk-a"></p><p class="copy-argument" id="copy-week"></p>
         <div class="meter" aria-hidden="true"><i id="week-bar"></i><span class="ref" id="week-ref"></span></div>
         <div class="scale" aria-hidden="true"><span>0</span><span id="week-scale">40 h</span></div>
       </div>
@@ -485,7 +490,7 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
           <div><b>Em você</b><span>Descanso adiado e dificuldade de se desconectar.</span></div>
           <div><b>No negócio</b><span>Equipe esperando suas decisões e projetos de crescimento que ficam para depois.</span></div>
         </div>
-        <p class="ask">Qual desses já faz parte da sua rotina?</p>
+        <p class="ask" id="copy-unseen"></p>
       </section>
 
       <details class="detail" id="b-detail" hidden>
@@ -508,8 +513,8 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
 
       <div id="b-end" hidden style="display:flex;flex-direction:column;gap:14px">
         <div class="close">
-          <strong>Liberar sua agenda pode começar com a equipe que você já tem.</strong>
-          <span>Algumas tarefas vão para a equipe; outras, para a IA ou para processos mais bem definidos, com critérios para decidir sem depender de você a cada passo.</span>
+          <strong id="copy-end-title"></strong>
+          <span id="copy-end-body"></span>
         </div>
         <p class="note">Resultados aproximados, feitos com as suas respostas. Os valores em reais são referência, não perda de caixa nem economia garantida.</p>
       </div>
@@ -714,6 +719,54 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
     });
   }
 
+
+/* Interpretação editorial MAPHEL — somente apresentação; fórmulas intactas. */
+function buildCopy(o,flags){
+const personal=flags.personal,biz=flags.biz,ano=personal&&o.anoSemTrabalho;
+const f=personal?o.F:0,d=personal?o.dias.a:0,w=personal?o.jornSem:0,p=biz?o.pct:0;
+const diasAgenda=personal?(o.hDeleg>0&&d===0?'menos de 1 dia':nDias(d)):'';
+const exposicao=biz&&p>50,descanso=personal&&!ano&&f<15,agenda=personal&&!ano&&d>=20,jornada=personal&&!ano&&w>50;
+const tipo=exposicao?'exposicao':descanso?'descanso':agenda?'agenda':jornada?'jornada':'equilibrio';
+const titulo=tipo==='equilibrio'?'Como está distribuída a responsabilidade na sua operação?':'Sua empresa está usando sua agenda para funcionar?';
+const abertura={
+exposicao:'Você estimou que '+p+'% do faturamento mensal poderia ficar exposto numa ausência de 30 dias. Isso não prevê prejuízo: sinaliza dependências percebidas. Vale investigar quais aprovações, informações ou relações continuam concentradas em você e o que precisaria mudar para que a operação avance com critérios claros.',
+descanso:'Você informou '+nDias(f)+' realmente longe do trabalho. Isso não comprova sobrecarga nem falha de gestão. Mas convida a observar o que acontece quando você não está disponível: quais decisões avançam, quais aguardam e como responsáveis e critérios poderiam tornar a operação mais autônoma.',
+agenda:'A simulação reúne '+diasAgenda+' equivalentes de trabalho em tarefas potencialmente transferíveis. Não são dias comprovadamente perdidos. Se parte dessas atividades puder ser redistribuída, a oportunidade é dedicar mais atenção às decisões que exigem sua experiência, sem simplesmente deslocar problemas à equipe.',
+jornada:'Você informou '+N1.format(w)+' horas semanais de trabalho. Esse número, isoladamente, não diagnostica sobrecarga. A pergunta é como o tempo se divide entre liderança, estratégia, respostas e aprovações recorrentes. Trabalhar mais não substitui processos, responsabilidades e acompanhamento.',
+equilibrio:'Os dados disponíveis não justificam criar urgência artificial. Esta simulação mostra aspectos da rotina e da continuidade operacional, sem transformar estimativas em perdas. Mesmo em cenários saudáveis, vale verificar se as responsabilidades continuarão bem distribuídas diante de novas demandas ou ausências programadas.'
+};
+let agendaTxt='',restTxt='',totalTxt='',moneyTxt='',bizTxt='',weekTxt='';
+if(personal){
+agendaTxt=ano||o.hDeleg===0?'Nesta combinação, não há tempo em tarefas a estimar no ano. Isso não autoriza supor desperdício. A autonomia também pode ser avaliada pela continuidade das decisões.':d===0?'A simulação indica menos de um dia equivalente em tarefas transferíveis. Pequenas aprovações ainda podem merecer critérios, mas não há base para afirmar perda de tempo.':d<20?'Os '+diasAgenda+' equivalentes são uma hipótese de agenda, não tempo automaticamente recuperável. Vale separar tarefas que exigem sua experiência das que chegam até você por falta de responsáveis.':'O equivalente a '+diasAgenda+' de trabalho em tarefas potencialmente transferíveis merece atenção. Com papéis, processos e acompanhamento, a equipe poderia assumir parte dessas atividades sem perder a qualidade das decisões.';
+restTxt=f>=30?'Você informou '+nDias(f)+' longe do trabalho e já alcança a referência comparativa de 30 dias. Esse é um sinal positivo. Vale verificar se as decisões seguem avançando durante sua ausência.':f<=7?'Você informou '+nDias(f)+' completamente longe do trabalho. A comparação com 30 dias não atribui ao sócio os direitos de férias de um empregado. Vale investigar o que exigiria sua disponibilidade numa ausência programada.':'Você informou '+nDias(f)+' longe do trabalho. Mais do que a diferença para a referência de 30 dias, importa saber quais decisões ficaram esperando sua volta e como a equipe poderia assumir essas situações.';
+totalTxt=ano?'':'Este total combina '+diasAgenda+' equivalentes de trabalho de oito horas em tarefas simuladas e '+nDias(o.dias.descanso)+' corridos abaixo da referência de descanso. São medidas distintas, reunidas apenas para visualizar a rotina: não representam dias comprovadamente perdidos nem previsão de tempo recuperável.';
+if(o.vTot!==undefined)moneyTxt=o.vTot===0?'A referência financeira desta simulação é zero. Não há perda monetária demonstrada; a análise da autonomia continua sendo qualitativa.':'O valor apresentado é uma referência monetária das horas simuladas, calculada a partir da renda informada. Não é despesa, prejuízo ou economia garantida. Vale perguntar onde sua capacidade de decisão faz mais diferença.';
+if(!ano)weekTxt=w<=40?'Sua jornada está dentro da referência comparativa de 40 horas. Isso é positivo, mas não prova, por si só, autonomia das decisões.':w<=50?'São '+N1.format(w-40)+' horas acima da referência semanal de 40 horas. O ponto é distinguir decisões exclusivamente suas de aprovações que poderiam ter responsáveis definidos.':w<=60?'A jornada de '+N1.format(w)+' horas semanais convida a revisar a distribuição das atividades. Trabalhar mais não significa necessariamente aumentar a autonomia da empresa.':'Com '+N1.format(w)+' horas semanais, vale investigar a sustentabilidade da rotina. Quais decisões só você deve tomar e quais chegam por falta de critérios?';
+}
+if(biz){
+bizTxt=p===0?'Você não identifica faturamento exposto numa ausência de 30 dias. É um sinal positivo na sua percepção, embora não comprove autonomia de todos os processos.':p<=25?'Você estima '+p+'% do faturamento potencialmente exposto em 30 dias de ausência. Não é uma perda prevista. Dependências pontuais de clientes ou decisões merecem investigação.':p<=50?'Sua estimativa de '+p+'% de faturamento potencialmente exposto indica dependências relevantes a investigar, sem comprovar prejuízo. Quais aprovações ou relações exigem sua presença?':'Você estima '+p+'% de faturamento potencialmente exposto numa ausência de 30 dias. Não é prejuízo previsto. O foco deve ser mapear decisões, clientes e processos críticos que ainda dependem de você.';
+if(o.exposto===undefined)bizTxt+=' Sem faturamento mensal válido, a leitura permanece percentual; não há valor em reais calculado.';
+if(o.exposto===0&&p>0)bizTxt+=' Como o faturamento informado é zero, a referência monetária também é zero.';
+}
+const finais={
+exposicao:['A continuidade da operação merece responsáveis além de você.','Sua estimativa sinaliza concentração de decisões, não uma perda financeira certa. Contratar mais pessoas ou instalar IA sem definir quem decide o quê pode apenas multiplicar aprovações. O caminho é identificar os gargalos prioritários, documentar critérios, distribuir responsabilidades e acompanhar os resultados. A MAPHEL pode apoiar esse diagnóstico e a construção de um plano aplicável à sua empresa.','QUERO IDENTIFICAR OS GARGALOS DA OPERAÇÃO'],
+descanso:['Autonomia também se revela quando você consegue se afastar.','Poucos dias de ausência não significam, necessariamente, uma operação desorganizada. Mas vale investigar o que exige sua disponibilidade. Mais esforço individual não resolve, sozinho, decisões sem responsáveis e informações concentradas. Critérios de escalonamento, processos e acompanhamento podem ajudar a equipe a agir com consistência. A MAPHEL pode apoiar a identificação das dependências e a priorização dos próximos passos.','QUERO ESTRUTURAR UMA OPERAÇÃO MAIS AUTÔNOMA'],
+agenda:['Delegar tarefas não é o mesmo que distribuir decisões.','O tempo simulado sugere uma oportunidade de revisão, não uma crise comprovada. A autonomia exige que as pessoas consigam executar e decidir com critérios claros. Contratar ou automatizar sem definir responsabilidades pode apenas deslocar gargalos. A MAPHEL pode ajudar a diferenciar tarefas, decisões e dependências para priorizar ajustes aplicáveis ao momento do negócio.','QUERO REVISAR OS GARGALOS DA MINHA AGENDA'],
+jornada:['Mais horas suas não significam mais autonomia da empresa.','A jornada informada convida a revisar onde estão concentradas atividades e aprovações. A solução não é necessariamente trabalhar mais, contratar ou instalar ferramentas. Responsáveis, critérios, processos e indicadores ajudam a criar continuidade com supervisão adequada. A MAPHEL pode apoiar o diagnóstico dos gargalos e a construção de prioridades de gestão, sem prometer resultados automáticos.','QUERO ENTENDER AS PRIORIDADES DA OPERAÇÃO'],
+equilibrio:['Uma operação saudável também merece estrutura para o próximo ciclo.','Seus números não justificam um diagnóstico alarmista. O próximo passo é verificar se o funcionamento atual continuará consistente quando surgirem novas demandas ou você precisar se afastar. Não se trata de criar urgência artificial: papéis, processos, critérios e acompanhamento ajudam a sustentar o que já funciona. A MAPHEL pode apoiar essa avaliação e identificar prioridades para o próximo ciclo.','QUERO AVALIAR A AUTONOMIA DA MINHA OPERAÇÃO']
+};
+const perguntas={exposicao:'Quais relações, informações ou aprovações ainda dependem diretamente de você?',descanso:'O que precisaria estar definido para você se afastar sem continuar aprovando tudo?',agenda:'Quais atividades poderiam avançar com critérios claros e outro responsável?',jornada:'Quais decisões exigem sua experiência e quais apenas aguardam sua autorização?',equilibrio:'O que permite que a empresa continue decidindo bem quando você não está disponível?'};
+return {titulo,abertura:abertura[tipo],agenda:agendaTxt,rest:restTxt,total:totalTxt,money:moneyTxt,biz:bizTxt,week:weekTxt,pergunta:perguntas[tipo],final:finais[tipo],personal};
+}
+function applyCopy(c){
+function set(id,t){$(id).textContent=t||'';}
+$('copy-intro').hidden=false;set('copy-intro-title',c.titulo);set('copy-intro-body',c.abertura);
+set('copy-agenda',c.agenda);set('copy-rest',c.rest);set('copy-tempo',c.total);set('copy-money',c.money);set('copy-biz',c.biz);set('copy-week',c.week);set('copy-unseen',c.pergunta);
+set('copy-end-title',c.final[0]);set('copy-end-body',c.final[1]);set('cta',c.final[2]);
+if(c.personal&&!$('c-tempo').hidden){var vs=$('ag-tot').querySelector('.vs');if(vs)vs.textContent='Medidas diferentes reunidas apenas para ilustrar a rotina; não são dias de trabalho perdidos.';}
+if(c.personal&&!$('c-rest').hidden){var label=$('re-big').querySelector('small');if(label)label.textContent=window.__calc.dias.descanso>0?'dias corridos abaixo da referência de 30 dias':'dias longe do trabalho informados';set('re-a',window.__calc.F>=30?'Seu descanso informado já alcança a referência comparativa de 30 dias.':'Comparação com 30 dias corridos, sem equiparar o direito do sócio ao de um empregado.');}
+}
+
   function calc() {
     var out = { D: D };
     window.__calc = out;
@@ -899,6 +952,7 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
     }
 
     var anyResult = personal || biz;
+    $('copy-intro').hidden = !anyResult;
     $('waiting').hidden = anyResult;
     if (anyResult) {
       $('unseen').hidden = false;
@@ -907,6 +961,7 @@ src="https://www.facebook.com/tr?id=934694599048373&ev=PageView&noscript=1"
       $('detail-rows').innerHTML = rows;
       if (!personal) { $('dt-five').textContent = ''; $('dt-total').textContent = ''; }
       if (!$('sticky-t').textContent) $('sticky-t').textContent = 'Resultado da empresa pronto';
+      applyCopy(buildCopy(out,{personal:personal,biz:biz}));
     }
     checkView();
   }
