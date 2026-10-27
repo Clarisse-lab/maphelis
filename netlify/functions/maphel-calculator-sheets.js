@@ -37,7 +37,18 @@ const TAB = "Calculadora do Dono";
 const HEADERS = ["Data e hora","ID do envio","Nome","WhatsApp","E-mail","Horas por dia","Dias por semana","Dias de descanso","Horas delegáveis por dia","Percentual do faturamento","Faturamento mensal","Renda mensal","UTM source","UTM medium","UTM campaign","UTM content","UTM term"];
 async function ensureTab(token) {
   const spreadsheet = await sheets("?fields=sheets.properties.title", token);
-  if (spreadsheet.sheets?.some(s => s.properties?.title === TAB)) return;
+  if (spreadsheet.sheets?.some(s => s.properties?.title === TAB)) {
+    // A aba pode ter sido criada manualmente e estar vazia: garantir cabeçalhos.
+    // Nunca sobrescrever dados ou cabeçalhos já existentes.
+    const current = await sheets("/values/" + encodeURIComponent("'" + TAB + "'!A1:Q1"), token);
+    if (!(current.values?.[0] || []).some(v => String(v).trim())) {
+      await sheets("/values/" + encodeURIComponent("'" + TAB + "'!A1:Q1") + "?valueInputOption=RAW", token, {
+        method: "PUT",
+        body: JSON.stringify({ range: "'" + TAB + "'!A1:Q1", majorDimension: "ROWS", values: [HEADERS] })
+      });
+    }
+    return;
+  }
   const id = encodeURIComponent(process.env.GOOGLE_SHEETS_SPREADSHEET_ID);
   const res = await fetch("https://sheets.googleapis.com/v4/spreadsheets/" + id + ":batchUpdate", {
     method:"POST", headers:{Authorization:"Bearer " + token,"Content-Type":"application/json"},
