@@ -1114,8 +1114,9 @@ if(c.personal&&!$('c-rest').hidden){var label=$('re-big').querySelector('small')
     button.disabled = true;
     button.textContent = 'SALVANDO...';
     try {
-      // Netlify Forms é o destino principal dos leads desta calculadora.
-      // A planilha está temporariamente bloqueada por falta de armazenamento.
+      // Netlify Forms permanece como destino principal e libera o resultado.
+      // Google Sheets recebe uma cópia independente: falhas nunca bloqueiam o visitante.
+      var sheetData = Object.fromEntries(new FormData(form).entries());
       var formsResponse = await fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -1125,6 +1126,22 @@ if(c.personal&&!$('c-rest').hidden){var label=$('re-big').querySelector('small')
         throw new Error('Netlify Forms HTTP ' + formsResponse.status);
       }
       console.info('MAPHEL calculadora: envio aceito pelo Netlify Forms (HTTP ' + formsResponse.status + ').');
+      // O registro na planilha ocorre em paralelo à exibição do resultado.
+      // Um ID único evita duplicação se o endpoint receber o mesmo envio novamente.
+      var sheetId = (window.crypto && typeof window.crypto.randomUUID === 'function')
+        ? window.crypto.randomUUID()
+        : 'maphel-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+      fetch('/.netlify/functions/maphel-calculator-sheets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: sheetId, data: sheetData })
+      }).then(function (response) {
+        if (!response.ok) throw new Error('Google Sheets HTTP ' + response.status);
+        console.info('MAPHEL calculadora: cópia enviada à planilha.');
+      }).catch(function (error) {
+        // Netlify Forms já recebeu o lead: registrar falha sem pedir novo envio.
+        console.warn('MAPHEL calculadora: falha na cópia para Google Sheets; lead mantido no Netlify Forms.', error);
+      });
       $('result').classList.remove('is-locked');
       calc();
       $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
