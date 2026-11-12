@@ -151,6 +151,13 @@ form?.addEventListener('submit',async(event)=>{
   // Só concluir após gravação confirmada na Google Sheets API.
   // HTTP 2xx do Netlify Forms, isoladamente, não garante registro no painel.
   if(pending.sheetsSaved){
+    try {
+      if(typeof window.fbq==='function'){
+        window.fbq('track','Lead',{content_name:'Agenda do Dono'},{eventID:pending.id});
+      }
+    } catch(error) {
+      console.warn('MAPHEL: falha ao registrar o evento Lead:',error);
+    }
     sessionStorage.removeItem(pendingKey);
     window.location.assign(form.getAttribute('action')||'/obrigado/');
     return;
