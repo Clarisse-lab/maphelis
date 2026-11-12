@@ -1114,42 +1114,43 @@ if(c.personal&&!$('c-rest').hidden){var label=$('re-big').querySelector('small')
     button.disabled = true;
     button.textContent = 'SALVANDO...';
     try {
-      // Netlify Forms permanece como destino principal e libera o resultado.
-      // Google Sheets recebe uma cópia independente: falhas nunca bloqueiam o visitante.
+      // Enviar para os dois destinos, mas liberar o resultado e registrar Lead
+      // somente depois de a Google Sheets API confirmar a gravação.
+      // Netlify Forms HTTP 2xx não prova que o envio foi registrado no painel.
       var sheetData = Object.fromEntries(new FormData(form).entries());
-      var formsResponse = await fetch('/', {
+      var sheetId = (window.crypto && typeof window.crypto.randomUUID === 'function')
+        ? window.crypto.randomUUID()
+        : 'maphel-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+      var netlifyRequest = fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams(new FormData(form)).toString()
+      }).then(function (response) {
+        if (!response.ok) throw new Error('Netlify Forms HTTP ' + response.status);
+        return response.status;
       });
-      if (!formsResponse.ok) {
-        throw new Error('Netlify Forms HTTP ' + formsResponse.status);
+      var sheetsRequest = fetch('/.netlify/functions/maphel-calculator-sheets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: sheetId, data: sheetData })
+      }).then(function (response) {
+        if (!response.ok) throw new Error('Google Sheets HTTP ' + response.status);
+        return response.status;
+      });
+      var deliveries = await Promise.allSettled([netlifyRequest, sheetsRequest]);
+      if (deliveries[0].status === 'rejected') {
+        console.warn('MAPHEL calculadora: Netlify Forms não confirmou o envio:', deliveries[0].reason);
       }
-      console.info('MAPHEL calculadora: envio aceito pelo Netlify Forms (HTTP ' + formsResponse.status + ').');
-      // Conversão real: somente após Netlify Forms confirmar o envio.
-      // Não representa compra; evitar duplicar o Lead no mesmo carregamento.
+      if (deliveries[1].status === 'rejected') {
+        throw deliveries[1].reason;
+      }
+      console.info('MAPHEL calculadora: lead confirmado na Google Sheets API.');
       if (!window.__maphelCalculatorLeadTracked) {
         window.__maphelCalculatorLeadTracked = true;
         if (typeof window.fbq === 'function') {
           window.fbq('track', 'Lead', { content_name: 'Calculadora do Dono', content_category: 'Calculadora MAPHEL' });
         }
       }
-      // O registro na planilha ocorre em paralelo à exibição do resultado.
-      // Um ID único evita duplicação se o endpoint receber o mesmo envio novamente.
-      var sheetId = (window.crypto && typeof window.crypto.randomUUID === 'function')
-        ? window.crypto.randomUUID()
-        : 'maphel-' + Date.now() + '-' + Math.random().toString(36).slice(2);
-      fetch('/.netlify/functions/maphel-calculator-sheets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: sheetId, data: sheetData })
-      }).then(function (response) {
-        if (!response.ok) throw new Error('Google Sheets HTTP ' + response.status);
-        console.info('MAPHEL calculadora: cópia enviada à planilha.');
-      }).catch(function (error) {
-        // Netlify Forms já recebeu o lead: registrar falha sem pedir novo envio.
-        console.warn('MAPHEL calculadora: falha na cópia para Google Sheets; lead mantido no Netlify Forms.', error);
-      });
       $('result').classList.remove('is-locked');
       calc();
       $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
