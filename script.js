@@ -148,7 +148,9 @@ form?.addEventListener('submit',async(event)=>{
   if(sheetsResult.status==='fulfilled') pending.sheetsSaved=true;
   else console.error('MAPHEL: falha no Google Sheets:',sheetsResult.reason);
 
-  if(pending.netlifySaved || pending.sheetsSaved){
+  // Só concluir após gravação confirmada na Google Sheets API.
+  // HTTP 2xx do Netlify Forms, isoladamente, não garante registro no painel.
+  if(pending.sheetsSaved){
     sessionStorage.removeItem(pendingKey);
     window.location.assign(form.getAttribute('action')||'/obrigado/');
     return;
