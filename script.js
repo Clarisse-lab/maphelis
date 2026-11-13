@@ -3,6 +3,7 @@ const fields=[...document.querySelectorAll('.step .field')];
 const next=document.getElementById('nextBtn');
 const prev=document.getElementById('prevBtn');
 const submit=document.getElementById('submitBtn');
+const submitLabel=submit.textContent;
 const bar=document.getElementById('progressBar');
 const form=document.getElementById('applicationForm');
 let i=0;
@@ -71,6 +72,7 @@ function resetCompletedForm(){
   form.reset();
   i=0;
   submit.disabled=false;
+  submit.textContent=submitLabel;
   show();
 }
 
@@ -130,7 +132,6 @@ form?.addEventListener('submit',async(event)=>{
   event.preventDefault();
   if(i!==fields.length-1 || submit.disabled || completed || !form.reportValidity()) return;
   submit.disabled=true;
-  const originalLabel=submit.textContent;
   submit.textContent='ENVIANDO...';
 
   const fd=new FormData(form);
@@ -181,7 +182,6 @@ form?.addEventListener('submit',async(event)=>{
     completed=true;
     sessionStorage.removeItem(pendingKey);
     sessionStorage.setItem(completedKey,'1');
-    resetCompletedForm();
     window.location.assign(form.getAttribute('action')||'/obrigado/');
     return;
   }
@@ -189,5 +189,5 @@ form?.addEventListener('submit',async(event)=>{
   sessionStorage.setItem(pendingKey,JSON.stringify(pending));
   alert('Não foi possível concluir o envio agora. Tente novamente em instantes.');
   submit.disabled=false;
-  submit.textContent=originalLabel;
+  submit.textContent=submitLabel;
 });
