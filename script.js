@@ -6,6 +6,8 @@ const submit=document.getElementById('submitBtn');
 const bar=document.getElementById('progressBar');
 const form=document.getElementById('applicationForm');
 let i=0;
+const completedKey='maphel_application_completed';
+let completed=false;
 
 const meta=document.createElement('div');
 meta.className='form-progress-meta';
@@ -65,6 +67,24 @@ function show(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+function resetCompletedForm(){
+  form.reset();
+  i=0;
+  submit.disabled=false;
+  show();
+}
+
+window.addEventListener('pageshow',event=>{
+  const fromHistory=event.persisted||performance.getEntriesByType('navigation')[0]?.type==='back_forward';
+  if(!fromHistory||(!completed&&sessionStorage.getItem(completedKey)!=='1')) return;
+  // Session history can restore field values after pageshow.
+  setTimeout(()=>{
+    resetCompletedForm();
+    completed=false;
+    sessionStorage.removeItem(completedKey);
+  },0);
+});
+
 function validCurrent(){
   const current=fields[i];
   const inputs=[...current.querySelectorAll('input,select,textarea')].filter(el=>!el.disabled);
@@ -87,8 +107,8 @@ function validCurrent(){
   return true;
 }
 
-next?.addEventListener('click',()=>{if(validCurrent()&&i<fields.length-1){i++;show()}});
-prev?.addEventListener('click',()=>{if(i>0){i--;show()}});
+next?.addEventListener('click',()=>{if(!submit.disabled&&!completed&&validCurrent()&&i<fields.length-1){i++;show()}});
+prev?.addEventListener('click',()=>{if(!submit.disabled&&!completed&&i>0){i--;show()}});
 
 document.querySelectorAll('.choice input').forEach(input=>{
   input.addEventListener('change',()=>{
@@ -108,7 +128,7 @@ show();
    Failures are logged; automatic server-side replay is a separate improvement. */
 form?.addEventListener('submit',async(event)=>{
   event.preventDefault();
-  if(!form.reportValidity() || submit.disabled) return;
+  if(i!==fields.length-1 || submit.disabled || completed || !form.reportValidity()) return;
   submit.disabled=true;
   const originalLabel=submit.textContent;
   submit.textContent='ENVIANDO...';
@@ -158,7 +178,10 @@ form?.addEventListener('submit',async(event)=>{
     } catch(error) {
       console.warn('MAPHEL: falha ao registrar o evento Lead:',error);
     }
+    completed=true;
     sessionStorage.removeItem(pendingKey);
+    sessionStorage.setItem(completedKey,'1');
+    resetCompletedForm();
     window.location.assign(form.getAttribute('action')||'/obrigado/');
     return;
   }
