@@ -109,7 +109,7 @@ function validCurrent(){
   return true;
 }
 
-next?.addEventListener('click',()=>{if(!submit.disabled&&!completed&&validCurrent()&&i<fields.length-1){i++;show()}});
+next?.addEventListener('click',()=>{if(!submit.disabled&&!completed&&validCurrent()&&i<fields.length-1){try{window.maphelRastreio?.pergunta(i+1,fields.length,fields[i])}catch(_){}i++;show()}});
 prev?.addEventListener('click',()=>{if(!submit.disabled&&!completed&&i>0){i--;show()}});
 
 document.querySelectorAll('.choice input').forEach(input=>{
@@ -179,6 +179,8 @@ form?.addEventListener('submit',async(event)=>{
     } catch(error) {
       console.warn('MAPHEL: falha ao registrar o evento Lead:',error);
     }
+    // Rastreio extra (eventos separados; o Lead acima não muda)
+    try{window.maphelRastreio?.pergunta(fields.length,fields.length,fields[fields.length-1]);window.maphelRastreio?.perfil(data)}catch(_){}
     completed=true;
     sessionStorage.removeItem(pendingKey);
     sessionStorage.setItem(completedKey,'1');
